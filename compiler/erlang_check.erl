@@ -6,6 +6,8 @@
 %% errors, and exit with an appropriate exit code.
 %% @end
 %%------------------------------------------------------------------------------
+-compile([nowarn_unused_function]).
+
 -spec main([string()]) -> no_return().
 main([]) ->
     io:format("Usage: see --help.~n"),
