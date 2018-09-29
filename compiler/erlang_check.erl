@@ -12,7 +12,6 @@ main([]) ->
     halt(2);
 main(Args) ->
     Files = parse_args(Args),
-    io:format("files: ~p, ~n", Files),
 
     case get(outdir) of
         undefined ->
@@ -264,7 +263,9 @@ check_module(File) ->
     % ProjectRoot: the directory of the Erlang release (if it exists; otherwise
     % same as AppRoot).
     ProjectRoot = fix_project_root(BuildSystem, Files, AppRoot),
-    BuildSystemOpts = load_build_files(BuildSystem, ProjectRoot, Files),
+    {opts, Config1} = load_build_files(BuildSystem, ProjectRoot, Files),
+    {opts, Config2} = load_build_files(BuildSystem, AppRoot, Files),
+    BuildSystemOpts = {opts, Config1 ++ Config2},%%有重复覆盖时可能会出问题
     {ExtOpts, OutDir} = case get(outdir) of
                             undefined ->
                                 {[strong_validation], undefined};
@@ -513,6 +514,7 @@ load_rebar_files([ConfigFile|Rest], Config) ->
 -spec load_rebar3_files(string()) ->
     {opts, [{atom(), term()}]} | error.
 load_rebar3_files(ConfigFile) ->
+    log("rerabr config ~p~n",[ConfigFile]),
     ConfigPath = filename:dirname(ConfigFile),
     ConfigResult = case filename:extension(ConfigFile) of
                        ".script" -> file:script(ConfigFile);
