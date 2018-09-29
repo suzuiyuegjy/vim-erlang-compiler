@@ -620,42 +620,43 @@ process_rebar3_config(ConfigPath, Terms) ->
             Rebar3 = filename:absname(Rebar3Rel),
             log("Absolute path to rebar3 executable: ~s~n", [Rebar3]),
             % load the profile used by rebar3 to print the dependency path list
-            Profile = rebar3_get_profile(Terms),
+            %%Profile = rebar3_get_profile(Terms),
             % "rebar3 path" prints all paths that belong to the project; we add
             % these to the Erlang paths.
             %
             % QUIET=1 ensures that it won't print other messages, see
             % https://github.com/erlang/rebar3/issues/1143.
-            {ok, Cwd} = file:get_cwd(),
-            file:set_cwd(ConfigPath),
-            MainCmd = io_lib:format("QUIET=1 ~p as ~p path", [Rebar3, Profile]),
-            log("Call: ~s~n", [MainCmd]),
-            Paths = os:cmd(MainCmd),
-            log("Result: ~s~n", [Paths]),
-            file:set_cwd(Cwd),
-            CleanedPaths = [absname(ConfigPath, SubDir)
-                            || SubDir <- string:tokens(Paths, " ")],
-            code:add_pathsa(CleanedPaths),
+            %%{ok, Cwd} = file:get_cwd(),
+            %%file:set_cwd(ConfigPath),
+            %%MainCmd = io_lib:format("QUIET=1 ~p as ~p path", [Rebar3, Profile]),
+            %%log("Call: ~s~n", [MainCmd]),
+            %%Paths = os:cmd(MainCmd),
+            %%log("Result: ~s~n", [Paths]),
+            %%file:set_cwd(Cwd),
+            %%CleanedPaths = [absname(ConfigPath, SubDir)
+            %%                || SubDir <- string:tokens(Paths, " ")],
+            %%code:add_pathsa(CleanedPaths),
 
             % _checkouts -> code_path (see
             % https://www.rebar3.org/docs/dependencies#section-checkout-dependencies)
             code:add_pathsa(filelib:wildcard(absname(ConfigPath, "3rd") ++ "/*/ebin")),
+            code:add_pathsa(filelib:wildcard(absname(ConfigPath, "_build/default/lib") ++ "/*/ebin")),
 
-            lists:foreach(
-              fun({ProfileName, Deps}) ->
-                      Apps = string:join([atom_to_list(D) || D <- Deps], ","),
-                      file:set_cwd(ConfigPath),
-                      Cmd = io_lib:format("QUIET=1 ~p as ~p path --app=~s",
-                                          [Rebar3, ProfileName, Apps]),
-                      log("Call: ~s~n", [Cmd]),
-                      ProfilePaths = os:cmd(Cmd),
-                      log("Result: ~s~n", [Paths]),
-                      file:set_cwd(Cwd),
-                      Cleaned = [absname(ConfigPath, SubDir)
-                                 || SubDir <- string:tokens(ProfilePaths, " ")],
-                      code:add_pathsa(Cleaned);
-                 (_) -> ok
-              end, rebar3_get_extra_profiles(Terms)),
+            %lists:foreach(
+            %  fun({ProfileName, Deps}) ->
+            %          Apps = string:join([atom_to_list(D) || D <- Deps], ","),
+            %          file:set_cwd(ConfigPath),
+            %          Cmd = io_lib:format("QUIET=1 ~p as ~p path --app=~s",
+            %                              [Rebar3, ProfileName, Apps]),
+            %          log("Call: ~s~n", [Cmd]),
+            %          ProfilePaths = os:cmd(Cmd),
+            %          log("Result: ~s~n", [Paths]),
+            %          file:set_cwd(Cwd),
+            %          Cleaned = [absname(ConfigPath, SubDir)
+            %                     || SubDir <- string:tokens(ProfilePaths, " ")],
+            %         code:add_pathsa(Cleaned);
+            %    (_) -> ok
+            % end, rebar3_get_extra_profiles(Terms)),
 
             ErlOpts = proplists:get_value(erl_opts, Terms, []),
             CoverOpts = proplists:get_value(cover_opts, Terms, []),
