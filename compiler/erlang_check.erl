@@ -12,6 +12,7 @@ main([]) ->
     halt(2);
 main(Args) ->
     Files = parse_args(Args),
+    io:format("files: ~p, ~n", Files),
 
     case get(outdir) of
         undefined ->
@@ -272,6 +273,7 @@ check_module(File) ->
                                 {[{outdir, AbsOutDir}], AbsOutDir}
                         end,
 
+    log("build_opts: ~p~n", [BuildSystemOpts]),
     case BuildSystemOpts of
         {result, Result} ->
             log("Result: ~p", [Result]);
@@ -654,7 +656,8 @@ process_rebar3_config(ConfigPath, Terms) ->
               end, rebar3_get_extra_profiles(Terms)),
 
             ErlOpts = proplists:get_value(erl_opts, Terms, []),
-            remove_warnings_as_errors(ErlOpts)
+            CoverOpts = proplists:get_value(cover_opts, Terms, []),
+            remove_warnings_as_errors(ErlOpts ++ CoverOpts)
     end.
 
 %%------------------------------------------------------------------------------
