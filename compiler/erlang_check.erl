@@ -591,7 +591,7 @@ process_rebar_config(Path, Terms, Config) ->
             [ {i, absname(Path, filename:append(SubDir, "include"))}
               || SubDir <- SubDirs ],
 
-            Opts = ErlOpts ++ Includes,
+            Opts  = ErlOpts ++ Includes,
             remove_warnings_as_errors(Opts);
         _ ->
             Config
@@ -637,7 +637,7 @@ process_rebar3_config(ConfigPath, Terms) ->
 
             % _checkouts -> code_path (see
             % https://www.rebar3.org/docs/dependencies#section-checkout-dependencies)
-            code:add_pathsa(filelib:wildcard(absname(ConfigPath, "_checkouts") ++ "/*/ebin")),
+            code:add_pathsa(filelib:wildcard(absname(ConfigPath, "3rd") ++ "/*/ebin")),
 
             lists:foreach(
               fun({ProfileName, Deps}) ->
